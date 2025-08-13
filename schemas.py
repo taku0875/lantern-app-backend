@@ -1,23 +1,32 @@
 from pydantic import BaseModel, ConfigDict
-from datetime import date
+from datetime import date, datetime
 from typing import List, Optional
 
-# --- APIリクエストボディ ---
-class MoodData(BaseModel):
-    user_id: int
-    answers: List['AnswerData']
+# --- 基本モデル ---
+class QuestionCategory(BaseModel):
+    category_id: int
+    category_name: str
+    model_config = ConfigDict(from_attributes=True)
 
-class AnswerData(BaseModel):
+class Color(BaseModel):
+    color_id: int
+    color_name: str | None = None
+    model_config = ConfigDict(from_attributes=True)
+
+class Question(BaseModel):
     question_id: int
-    answer_choice: int
+    question_text: str
+    category: QuestionCategory
+    model_config = ConfigDict(from_attributes=True)
 
-class LoginRequest(BaseModel):
+class User(BaseModel):
+    user_id: int
     email: str
-    password: str
+    name: str
+    model_config = ConfigDict(from_attributes=True)
 
-# 【修正】RegisterRequestをDBのuserテーブルに合わせて修正
+# --- リクエストボディ ---
 class RegisterRequest(BaseModel):
-    user_id: str # ログインIDとして使用
     name: str
     email: str
     password: str
@@ -25,26 +34,34 @@ class RegisterRequest(BaseModel):
     birthday: Optional[date] = None
     gender: Optional[str] = None
 
-# --- APIレスポンス ---
-class Question(BaseModel):
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+class AnswerData(BaseModel):
     question_id: int
-    category_id: int
-    question_text: str
-    model_config = ConfigDict(from_attributes=True)
+    answer_choice: int
+
+class MoodDataForSave(BaseModel):
+    answers: List[AnswerData]
+
+# --- レスポンスボディ ---
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 class QuestionsResponse(BaseModel):
     questions: List[Question]
-    message: str
 
-class LoginResponse(BaseModel):
-    message: str
-    user: dict
-    token: str
+# 【新規作成】Lantanモデル
+class Lantan(BaseModel):
+    lantan_id: int
+    released_at: datetime
+    user_id: int
+    color_id: int
+    model_config = ConfigDict(from_attributes=True)
 
-class RegisterResponse(BaseModel):
+# 【新規作成】Lantanリリース時のレスポンスモデル
+class LantanReleaseResponse(BaseModel):
     message: str
-    user: dict
-    token: str
-
-# MoodDataがAnswerDataを前方参照できるように更新
-MoodData.model_rebuild()
+    lantan: Lantan
