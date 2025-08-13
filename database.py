@@ -16,7 +16,8 @@ connect_args = {
 # create_engineに関数を渡して、SSL設定を適用する
 engine = create_engine(
     DATABASE_URL,
-    connect_args=connect_args
+    connect_args=connect_args,
+    pool_pre_ping=True
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
