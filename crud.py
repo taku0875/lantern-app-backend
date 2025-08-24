@@ -46,6 +46,14 @@ def get_questions_from_db(db: Session) -> List[models.Question]:
     questions = db.query(subquery).filter(subquery.c.row_num == 1).all()
     return questions
 
+def get_random_recommendations_by_color_id(db: Session, color_id: int, limit: int) -> List[models.Recommendation]:
+    """
+    指定されたcolor_idに紐づくレコメンドを、指定された件数だけランダムに取得する。
+    """
+    return db.query(models.Recommendation).filter(
+        models.Recommendation.color_id == color_id
+    ).order_by(func.rand()).limit(limit).all()
+
 def get_weekly_records_from_db(db: Session, user_id: int) -> List[models.DailyRecord]:
     """DBから直近7日間の記録を取得する"""
     today = datetime.now().date()
